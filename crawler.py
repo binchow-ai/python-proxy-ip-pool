@@ -2,15 +2,15 @@
 import requests
 from pyquery import PyQuery as pq
 
+import config
+
 # 实现一个爬虫，用于从：http://www.xicidaili.com/nn 上获取代理IP数据
-# 默认只爬取前4页数据，可自行调整max_page参数来控制
-max_page = 4
+# 默认只爬取前4页数据，可自行调整 query_max_page 参数来控制
+
 default_url = 'http://www.xicidaili.com/nn/'
 
 # 生成爬虫目标URL列表
-target_urls = [default_url + str(i) for i in range(1, max_page + 1)]
-
-DEFAULT_UA = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
+target_urls = [default_url + str(i) for i in range(1, config.query_max_page + 1)]
 
 
 def get_proxies(url):
@@ -23,7 +23,7 @@ def get_proxies(url):
         # 下载代理列表页
         response = requests.get(url,
                                 headers={
-                                    'User-Agent': DEFAULT_UA,
+                                    'User-Agent': config.default_user_agent,
                                     'Host': 'www.xicidaili.com',
                                 })
         response.raise_for_status()
