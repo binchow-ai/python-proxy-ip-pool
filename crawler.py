@@ -31,7 +31,7 @@ def get_proxies(url):
         # 解析该页，获取全部代理IP及协议
         for tr in pq(html).find('tr:gt(0)'):
             tds = pq(tr).find('td')
-            yield (tds[5].text.strip(), tds[1].text.strip(), tds[2].text.strip())
+            yield tds[5].text.strip().lower(), tds[1].text.strip(), tds[2].text.strip()
     except Exception as e:
         print(e)
 
@@ -49,7 +49,8 @@ if __name__ == '__main__':
     # 测试逻辑
     count = 1
     for proxy in get_all_proxies():
-        print(proxy)
+        # 测试解包正常
+        print(proxy, *proxy)
         count += 1
 
     print('一共获取到：{} 个代理IP'.format(count))

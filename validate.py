@@ -10,6 +10,15 @@ import requests
 import config
 
 
+def concat_proxy(item):
+    """
+    将元组组装成代理字符串
+    :param item:
+    :return:
+    """
+    return '{}://{}:{}'.format(*item)
+
+
 def validate(protocol, ip, port):
     """
     检查代理IP有效性
@@ -26,7 +35,7 @@ def validate(protocol, ip, port):
     elif check(protocol, ip, port, config.normal_timeout):
         return True, 0
     else:
-        return False
+        return False, None
 
 
 def check(protocol, ip, port, timeout=0.5):
@@ -48,12 +57,11 @@ def check(protocol, ip, port, timeout=0.5):
         resp = requests.get(target_url,
                             timeout=timeout,
                             proxies={
-                                protocol: '{}://{}:{}'.format(protocol, ip, port)
+                                protocol: concat_proxy((protocol, ip, port))
                             },
                             headers={
                                 'User-Agent': config.default_user_agent,
                             })
-        print(resp.text)
         return resp.status_code == 200
     except Exception as e:
         print(e)

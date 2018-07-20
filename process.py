@@ -1,43 +1,79 @@
 # -*- coding: utf-8 -*-
 
-import config
 import redis
 
-
-# 数据持久化模块，用于将代理IP数据写入数据库(Mongo) / 缓存(Redis)
-# 本案采用Redis，Mongo有兴趣的可以自行实现
-# 数据库采用List数据结构实现，不过用Redis的话，原始数据库中标记无效数据就无法实现了
-# 但这个并不是很重要，原始数据库中只记录无效数据即可
+import config
 
 
-class DataProcess(object):
+class DataProcessor(object):
 
     def __init__(self):
-        self.client = redis.StrictRedis(host=config.redis_host,
-                                        port=config.redis_port,
-                                        decode_responses=True,
-                                        charset='utf-8')
+        self._client = redis.StrictRedis(host=config.redis_host,
+                                         port=config.redis_port,
+                                         decode_responses=True,
+                                         charset='utf-8')
 
-    def cache(self, proxies):
+    def query(self):
         """
-        缓存无效代理IP数据，缓存时间默认24H
-        :param proxies:
+        取出全部代理IP数据
         :return:
         """
-        pass
+        yield from [(proxy, 1) for proxy in self._client.smembers('http:proxies:1')]
+        yield from [(proxy, 0) for proxy in self._client.smembers('http:proxies:0')]
+        yield from [(proxy, 1) for proxy in self._client.smembers('https:proxies:1')]
+        yield from [(proxy, 0) for proxy in self._client.smembers('https:proxies:0')]
 
-    def save(self, proxies):
+    def save(self, proxy, level):
         """
-        保存有效代理IP数据
-        :param proxies:
+        保存代理IP
+        :param proxy:
+        :param level:
         :return:
         """
-        pass
+        key = self._get_key(proxy, level)
+        self._client.sadd(key, proxy)
 
-    def remove(self, proxies):
+    def remove(self, proxy, level):
         """
-        清除有效IP数据库中的数据
-        :param proxies:
+        删除代理IP
+        :param proxy:
+        :param level:
         :return:
         """
-        pass
+        key = self._get_key(proxy, level)
+        self._client.srem(key, proxy)
+
+    def _get_key(self, proxy, level):
+        """
+        根据代理IP信息，返回缓存键
+        :param proxy:
+        :return:
+        """
+        if proxy.startswith('http://'):
+            return 'http:proxies:{}'.format(level)
+        else:
+            return 'https:proxies:{}'.format(level)
+
+
+if __name__ == '__main__':
+    """
+    测试代码
+    """
+
+    dp = DataProcessor()
+
+    dp.save('http://118.190.95.43:9001', 1)
+    dp.save('https://118.31.220.3:8080', 0)
+
+    print('第一组查询：')
+    # http://118.190.95.43:9001 1
+    # https://118.31.220.3:8080 0
+    for proxy, level in dp.query():
+        print(proxy, level)
+
+    dp.remove('https://118.31.220.3:8080', 0)
+
+    print('第二组查询：')
+    # http://118.190.95.43:9001 1
+    for proxy, level in dp.query():
+        print(proxy, level)
