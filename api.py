@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import redis
 from flask import Flask, jsonify
 
@@ -16,7 +17,7 @@ client = redis.StrictRedis(host=config.redis_host,
 
 @app.route('/')
 def index():
-    return 'Nothing !'
+    return 'OK'
 
 
 @app.route('/<protocol>/random')
@@ -49,5 +50,13 @@ def proxies_by_protocol(protocol):
                     if proxy.startswith('{}://'.format(protocol))])
 
 
-if __name__ == '__main__':
+def run_api_server():
+    """
+    启动API服务
+    :return:
+    """
     app.run(host="0.0.0.0", port=8888)
+
+
+if __name__ == '__main__':
+    run_api_server()

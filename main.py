@@ -3,6 +3,7 @@
 # 代理IP池程序入口
 import re
 import time
+from threading import Thread
 
 import schedule
 
@@ -44,6 +45,15 @@ def validate_task():
 
 
 if __name__ == '__main__':
+    # 通过启动一个线程，来运行API服务(如果不需要该服务，把代码注掉即可)
+    def run_api_server():
+        print('启动API服务!')
+        __import__("api").run_api_server()
+
+
+    t = Thread(name='api-thread', target=run_api_server)
+    t.start()
+
     print('[{}]启动代理IP池维护任务'.format(time.ctime()))
 
     # 手动执行一次，定时任务将会在下一个周期才开始执行

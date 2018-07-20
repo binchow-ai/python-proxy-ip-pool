@@ -1,4 +1,5 @@
 # 测试代码，请忽略
+import os
 import re
 
 # 拆解URL测试
@@ -17,3 +18,7 @@ def log(protocol, ip, port):
 
 # 测试解包对传参的影响
 log(*re.split(r'(://|:)', url)[::2])
+
+# 测试获取环境变量(为Docker化配置做准备)
+print(os.environ.get('PATH'))
+print(os.environ.get('REDIS_PORT', 6379))
