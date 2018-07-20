@@ -48,3 +48,6 @@ $ curl localhost:8888/https/proxies
 
 ## 仅供测试
 [随机获取一个HTTPS代理IP](https://api.zlikun.com/https/random)
+
+
+吐槽一下，免费的代理IP质量大都很差，整个西刺前4页几百个IP有效的不超过10个 。。。

@@ -4,10 +4,12 @@
 # 代理IP有效性验证，使用requests库检查，其代理设置参考：
 # http://cn.python-requests.org/zh_CN/latest/user/advanced.html#proxies
 import time
+from concurrent.futures.thread import ThreadPoolExecutor
 
 import requests
 
 import config
+from crawler import get_all_proxies
 
 
 def concat_proxy(item):
@@ -63,8 +65,8 @@ def check(protocol, ip, port, timeout=0.5):
                                 'User-Agent': config.default_user_agent,
                             })
         return resp.status_code == 200
-    except Exception as e:
-        print(e)
+    except Exception:
+        pass
     return False
 
 
@@ -96,5 +98,22 @@ if __name__ == '__main__':
 
     # 本机出口IP：180.157.254.185
 
-    print(validate('HTTP', '118.190.95.43', 9001))
-    print(validate('HTTPS', '118.31.220.3', 8080))
+    # 速度有点慢，改用多线程试一下
+    executor = ThreadPoolExecutor(max_workers=10)
+
+
+    def test(item):
+        flag, level = validate(*item)
+        if flag:
+            print(concat_proxy(item), level)
+        # else:
+        #     print(concat_proxy(item), '-' * 10)
+
+
+    for item in get_all_proxies():
+        executor.submit(test, item)
+
+    executor.shutdown()
+
+    # 查询前5页，一共5条有效代理IP？！完全没法用啊 ~
+    print('完成全部有效代理IP检测')
