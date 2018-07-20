@@ -9,3 +9,11 @@ redis_port = 6379
 
 # 无效代理IP缓存时长，单位：H
 cache_expire_interval = 24
+
+# 测试代理超时设置
+better_timeout = 0.3
+normal_timeout = 1.0
+
+# 测试代理URL
+target_http_url = 'http://api.zlikun.com/ip'
+target_https_url = 'https://api.zlikun.com/ip'
