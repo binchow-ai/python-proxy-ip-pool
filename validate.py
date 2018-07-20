@@ -3,6 +3,7 @@
 
 # 代理IP有效性验证，使用requests库检查，其代理设置参考：
 # http://cn.python-requests.org/zh_CN/latest/user/advanced.html#proxies
+import re
 import time
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -98,22 +99,51 @@ if __name__ == '__main__':
 
     # 本机出口IP：180.157.254.185
 
-    # 速度有点慢，改用多线程试一下
-    executor = ThreadPoolExecutor(max_workers=10)
+    # # 速度有点慢，改用多线程试一下
+    # executor = ThreadPoolExecutor(max_workers=10)
+    #
+    #
+    # def test(item):
+    #     flag, level = validate(*item)
+    #     if flag:
+    #         print(concat_proxy(item), level)
+    #     # else:
+    #     #     print(concat_proxy(item), '-' * 10)
+    #
+    #
+    # for item in get_all_proxies():
+    #     executor.submit(test, item)
+    #
+    # executor.shutdown()
+    #
+    # # 查询前5页，一共5条有效代理IP？！完全没法用啊 ~
+    # print('完成全部有效代理IP检测')
 
+    def validate_proxy(url):
+        return validate(*re.split(r'(://|:)', url)[::2])
 
-    def test(item):
-        flag, level = validate(*item)
-        if flag:
-            print(concat_proxy(item), level)
-        # else:
-        #     print(concat_proxy(item), '-' * 10)
+    # # 从 http://ip.zdaye.com/FreeIPlist.html 找了几个试下效果
+    # # 前3个可以，后面的不行了
+    # print(validate_proxy('https://218.207.212.86:80'))
+    # print(validate_proxy('http://114.250.25.19:80'))
+    # print(validate_proxy('http://101.96.9.154:8080'))
+    # print(validate_proxy('http://183.232.185.85:8080'))
+    # print(validate_proxy('https://177.71.77.202:20183'))
+    #
+    # # 从 http://www.mayidaili.com/ 找几个试下
+    # # 都是1年前的，估计早就不能用了吧
+    # print(validate_proxy('https://174.120.70.232:80'))
+    # print(validate_proxy('https://120.52.32.46:80'))
 
+    # # http://www.swei360.com/
+    # # 也是坑货
+    # print(validate_proxy('https://95.143.109.146:41258'))
+    # print(validate_proxy('https://5.160.63.214:8080'))
+    # print(validate_proxy('https://93.126.59.74:53281'))
 
-    for item in get_all_proxies():
-        executor.submit(test, item)
+    # # http://www.ip3366.net/
+    # # 也不比上面的强
+    # print(validate_proxy('https://138.118.85.217:53281'))
+    # print(validate_proxy('https://58.251.251.139:8118'))
 
-    executor.shutdown()
-
-    # 查询前5页，一共5条有效代理IP？！完全没法用啊 ~
-    print('完成全部有效代理IP检测')
+    # 放弃治疗了 ~~~
